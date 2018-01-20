@@ -9,6 +9,33 @@
 #include <iostream>
 #include <algorithm>
 
+
+template <typename T>
+class Queue;
+
+template <typename T>
+class QueueIterator : public BaseIterator<T> {
+    typename std::deque<T>::iterator iter;
+    typename std::deque<T>::iterator end;
+
+public:
+    friend class Queue<T>;
+
+    QueueIterator(typename std::deque<T>::iterator begin, typename std::deque<T>::iterator end) : iter(begin), end(end) {}
+
+    void next() override {
+        ++iter;
+    }
+
+    bool valid() const override {
+        return iter != end;
+    }
+
+    T getData() override {
+        return *iter;
+    }
+};
+
 template<typename T>
 class Queue : public BaseContainer<T> {
     std::deque<T> queue;
@@ -22,6 +49,10 @@ public:
             iss >> temp;
             add(temp);
         }
+    }
+
+    QueueIterator<T> *getIterator() override {
+        return new QueueIterator<T>(queue.begin(), queue.end());
     }
 
     bool member(T const &x) override {

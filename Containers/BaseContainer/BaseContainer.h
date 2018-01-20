@@ -6,9 +6,23 @@
 #define HETEROGENEOUSCONTAINER_BASECONTAINER_H
 
 template <typename T>
+class BaseIterator {
+public:
+    virtual void next() = 0;
+
+    virtual T getData() = 0;
+
+    virtual bool valid() const = 0;
+
+    virtual ~BaseIterator() = default;
+};
+
+template <typename T>
 class BaseContainer {
 public:
     using Condition = bool (*)(T const&);
+
+    virtual BaseIterator<T> *getIterator() = 0;
 
     virtual bool member(T const& x) = 0;
 

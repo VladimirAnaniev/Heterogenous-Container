@@ -9,9 +9,37 @@
 #include <algorithm>
 #include <iostream>
 #include <sstream>
+#include <iterator>
+
+template <typename T>
+class DLinkedList;
+
+template <typename T>
+class DLLIterator : public BaseIterator<T> {
+    typename std::deque<T>::iterator iter;
+    typename std::deque<T>::iterator end;
+
+public:
+    friend class DLinkedList<T>;
+
+    DLLIterator(typename std::deque<T>::iterator begin, typename std::deque<T>::iterator end) : iter(begin), end(end) {}
+
+    void next() override {
+        ++iter;
+    }
+
+    bool valid() const override {
+        return iter != end;
+    }
+
+    T getData() override {
+        return iter[0];
+    }
+};
 
 template<typename T>
 class DLinkedList : public BaseContainer<T> {
+private:
     std::deque<T> dllist;
 
 public:
@@ -23,6 +51,10 @@ public:
             iss >> temp;
             add(temp);
         }
+    }
+
+    DLLIterator<T> *getIterator() override {
+        return new DLLIterator<T>(dllist.begin(), dllist.end());
     }
 
     bool member(T const &x) override {

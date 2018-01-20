@@ -1,0 +1,4 @@
+3
+3 Stack 2 4 6 
+2 Queue 3 8 
+2 DLinkedList 60 798 

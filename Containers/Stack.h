@@ -12,6 +12,33 @@
 #include <sstream>
 #include <vector>
 
+
+template <typename T>
+class Stack;
+
+template <typename T>
+class StackIterator : public BaseIterator<T> {
+    typename std::deque<T>::iterator iter;
+    typename std::deque<T>::iterator end;
+
+public:
+    friend class Stack<T>;
+
+    StackIterator(typename std::deque<T>::iterator begin, typename std::deque<T>::iterator end) : iter(begin), end(end) {}
+
+    void next() override {
+        ++iter;
+    }
+
+    bool valid() const override {
+        return iter != end;
+    }
+
+    T getData() override {
+        return *iter;
+    }
+};
+
 template<typename T>
 class Stack : public BaseContainer<T> {
     std::deque<T> stack;
@@ -24,6 +51,10 @@ public:
             iss >> temp;
             add(temp);
         }
+    }
+
+    StackIterator<T> *getIterator() override {
+        return new StackIterator<T>(stack.begin(), stack.end());
     }
 
     bool member(const T &x) override {

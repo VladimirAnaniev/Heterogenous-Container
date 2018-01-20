@@ -13,6 +13,54 @@
 #include "Containers/DLinkedList.h"
 
 template<typename T>
+class MainContainer;
+
+template<typename T>
+class MainIterator : public BaseIterator<T> {
+    std::vector<BaseIterator<T> *> iterators;
+
+    BaseIterator<T> *getMinIterator() {
+        BaseIterator<T> *min = nullptr;
+        typename std::vector<BaseIterator<T> *>::iterator it = iterators.begin();
+
+        while (it != iterators.end()) {
+            if((*it)->valid()) {
+                if(min == nullptr || min->getData() > (*it)->getData()) {
+                    min = *it;
+                }
+            }
+            ++it;
+        }
+
+        return min;
+    }
+
+public:
+    explicit MainIterator(const std::vector<BaseContainer<T> *> &containers) {
+        for (BaseContainer<T> *container : containers) {
+            iterators.push_back(container->getIterator());
+        }
+    }
+
+    void next() override {
+        BaseIterator<T> *min = getMinIterator();
+        if (min) min->next();
+    }
+
+    T getData() override {
+        BaseIterator<T> *min = getMinIterator();
+        return min->getData();
+    }
+
+    bool valid() const override {
+        for (BaseIterator<T> *iter: iterators) {
+            if (iter->valid()) return true;
+        }
+        return false;
+    }
+};
+
+template<typename T>
 class MainContainer : BaseContainer<T> {
     std::vector<BaseContainer<T> *> containers;
 
@@ -30,7 +78,7 @@ class MainContainer : BaseContainer<T> {
 
 public:
     void filter(Condition c) override {
-        for(BC *container : containers) {
+        for (BC *container : containers) {
             container->filter(c);
         }
     }
@@ -58,6 +106,26 @@ public:
                 addContainer(dll);
             }
         }
+    }
+
+    MainIterator<T> *getIterator() override {
+        sort();
+        return new MainIterator<T>(containers);
+    }
+
+    MainIterator<T> *iteratorFor(T elem) {
+        MainIterator<T> *iter = getIterator();
+
+        while(iter->valid()) {
+            if(iter->getData() == elem) {
+                return iter;
+            }
+
+            iter->next();
+        }
+
+        //Iter no longer valid
+        return iter;
     }
 
     void sort() override {
